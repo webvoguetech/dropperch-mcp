@@ -49,6 +49,20 @@ jobs:
           fi
           echo "on_npm=true" >> "$GITHUB_OUTPUT"
 
+      # npm can take several minutes to serve a new version, and the registry
+      # refuses one it cannot see yet (seen on 1.0.0 and 1.0.1).
+      - name: Wait until npm serves this version
+        if: steps.npm.outputs.on_npm == 'true'
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          for i in $(seq 1 40); do
+            npm view "dropperch-mcp@$version" version >/dev/null 2>&1 && exit 0
+            echo "waiting for dropperch-mcp@$version on npm ($i/40)"
+            sleep 30
+          done
+          echo "::error::dropperch-mcp@$version did not appear on npm within 20 minutes"
+          exit 1
+
       - name: Install cosign
         if: steps.npm.outputs.on_npm == 'true'
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
