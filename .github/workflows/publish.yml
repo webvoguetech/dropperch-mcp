@@ -35,6 +35,7 @@ jobs:
       - run: npm test
 
       - name: Publish to npm (skipped if this version is already there)
+        id: npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -42,17 +43,23 @@ jobs:
           version="$(node -p "require('./package.json').version")"
           if npm view "dropperch-mcp@$version" version >/dev/null 2>&1; then
             echo "dropperch-mcp@$version is already on npm"
+            echo "on_npm=true" >> "$GITHUB_OUTPUT"
           elif [ -z "${NODE_AUTH_TOKEN:-}" ]; then
-            echo "::error::Add an NPM_TOKEN repository secret, then re-run this workflow."
-            exit 1
+            # The registry refuses a server whose npm package does not exist,
+            # so without a token there is nothing more to do this run.
+            echo "::warning::No NPM_TOKEN secret yet. Add one, then re-run this workflow to publish to npm and the MCP Registry."
+            echo "on_npm=false" >> "$GITHUB_OUTPUT"
           else
             npm publish --access public --provenance
+            echo "on_npm=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Install cosign
+        if: steps.npm.outputs.on_npm == 'true'
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
       - name: Download and verify mcp-publisher
+        if: steps.npm.outputs.on_npm == 'true'
         run: |
           set -euo pipefail
           os="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -70,7 +77,9 @@ jobs:
           rm -f "$archive" "$archive.sigstore.json"
 
       - name: Sign in to the MCP Registry
+        if: steps.npm.outputs.on_npm == 'true'
         run: ./mcp-publisher login github-oidc
 
       - name: Publish to the MCP Registry
+        if: steps.npm.outputs.on_npm == 'true'
         run: ./mcp-publisher publish
