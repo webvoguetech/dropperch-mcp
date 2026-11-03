@@ -1,6 +1,6 @@
 {
   "name": "dropperch-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "mcpName": "io.github.webvoguetech/dropperch-mcp",
   "description": "MCP server for live domain expiry, lifecycle stage, drop date and SSL certificate checks, read straight from the registry over RDAP. No API key.",
   "type": "module",
