@@ -1,0 +1,50 @@
+{
+  "name": "dropperch-mcp",
+  "version": "1.0.0",
+  "mcpName": "io.github.webvoguetech/dropperch-mcp",
+  "description": "MCP server for live domain expiry, lifecycle stage, drop date and SSL certificate checks, read straight from the registry over RDAP. No API key.",
+  "type": "module",
+  "bin": {
+    "dropperch-mcp": "index.js"
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "README.md",
+    "LICENSE",
+    "server.json"
+  ],
+  "scripts": {
+    "test": "node --test test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^3.25.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "domain",
+    "domain-expiry",
+    "rdap",
+    "whois",
+    "ssl",
+    "drop-date",
+    "claude",
+    "cursor"
+  ],
+  "homepage": "https://dropperch.com/?utm_source=npm&utm_medium=package&utm_campaign=mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webvoguetech/dropperch-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/webvoguetech/dropperch-mcp/issues"
+  },
+  "license": "MIT",
+  "author": "Web Vogue Technologies <support@dropperch.com>"
+}

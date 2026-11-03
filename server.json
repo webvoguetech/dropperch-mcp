@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.webvoguetech/dropperch-mcp",
+  "title": "DropPerch domain expiry",
+  "description": "Live domain expiry, lifecycle stage, drop date and SSL checks from the registry over RDAP.",
+  "websiteUrl": "https://dropperch.com/?utm_source=mcp-registry",
+  "repository": {
+    "url": "https://github.com/webvoguetech/dropperch-mcp",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "dropperch-mcp",
+      "version": "1.0.0",
+      "transport": { "type": "stdio" }
+    }
+  ]
+}
