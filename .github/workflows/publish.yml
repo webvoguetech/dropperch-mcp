@@ -4,10 +4,11 @@ name: Publish
 # in the official MCP Registry. The registry checks that the npm package
 # exists and carries the same mcpName, so the order matters.
 #
-# Needs one repository secret, NPM_TOKEN: an npm granular access token with
-# read and write on dropperch-mcp (or "all packages" for the first publish).
-# The MCP Registry step needs no secret: it signs in with GitHub OIDC, which
-# proves this repository is io.github.webvoguetech/*.
+# No secrets. npm publishes through Trusted Publishing: npmjs.com trusts this
+# repository's publish.yml, and the job proves who it is with a GitHub OIDC
+# token (npm CLI 11.5.1 or later; provenance is attached automatically). The
+# MCP Registry step signs in the same way, which proves this repository is
+# io.github.webvoguetech/*.
 
 on:
   push:
@@ -31,28 +32,22 @@ jobs:
           node-version: 'lts/*'
           registry-url: 'https://registry.npmjs.org'
 
+      # Trusted Publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@latest
       - run: npm ci
       - run: npm test
 
       - name: Publish to npm (skipped if this version is already there)
         id: npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
           version="$(node -p "require('./package.json').version")"
           if npm view "dropperch-mcp@$version" version >/dev/null 2>&1; then
             echo "dropperch-mcp@$version is already on npm"
-            echo "on_npm=true" >> "$GITHUB_OUTPUT"
-          elif [ -z "${NODE_AUTH_TOKEN:-}" ]; then
-            # The registry refuses a server whose npm package does not exist,
-            # so without a token there is nothing more to do this run.
-            echo "::warning::No NPM_TOKEN secret yet. Add one, then re-run this workflow to publish to npm and the MCP Registry."
-            echo "on_npm=false" >> "$GITHUB_OUTPUT"
           else
-            npm publish --access public --provenance
-            echo "on_npm=true" >> "$GITHUB_OUTPUT"
+            npm publish --access public
           fi
+          echo "on_npm=true" >> "$GITHUB_OUTPUT"
 
       - name: Install cosign
         if: steps.npm.outputs.on_npm == 'true'
